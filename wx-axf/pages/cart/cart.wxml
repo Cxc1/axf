@@ -1,0 +1,125 @@
+<wxs module="m1">
+/*
+ * 是否为全选
+ */
+var checkedAll = function(carts) {
+
+  var checkedAll = true
+  for (var i = 0; i < carts.length; i++) {
+    if (!carts[i].checked) {
+      checkedAll = false
+      break
+    }
+  }
+  return checkedAll
+}
+/*
+ * 统计总价
+*/
+var total = function (carts) {
+  var result = 0
+  var carts = carts
+  for (var i = 0; i < carts.length; i++) {
+    if (carts[i].checked) {
+      result += (carts[i].num * carts[i].product_price)
+    }
+  }
+  return result.toFixed(2)
+}
+
+module.exports = {
+  checkedAll: checkedAll,
+  total: total
+}
+</wxs>
+<!--pages/cart/cart.wxml-->
+<view class='page-cart'>
+  <scroll-view scroll-y class='main' hidden='{{!(carts.length>0)}}'>
+    <!--地址信息  -->
+    <view class='table receive'>
+      <navigator url='/packageA/pages/site/site' class='more extend-click'>修改</navigator>
+      <view class='tr'>
+        <view class='th'>
+          <!-- 两个英文字符等于一个中文字的宽度 -->
+          收<text class="text-hidden">a</text>货<text class="text-hidden">a</text>人
+        </view>
+        <view class='td'>
+          {{userinfo.selectSite.linkman}} {{userinfo.selectSite.sex?'女士':'先生'}}
+        </view>
+      </view>
+      <view class='tr'>
+        <view class='th'>
+          电<text class="text-hidden">中</text><text class="text-hidden">中</text>话
+        </view>
+        <view class='td'>
+          {{userinfo.selectSite.phone}}
+        </view>
+      </view>
+      <view class='tr'>
+        <view class='th'>收货地址</view>
+        <view class='td'>{{userinfo.selectSite.city}}{{userinfo.selectSite.site}}{{userinfo.selectSite.detailSite}}</view>
+      </view>
+    </view>
+    <!--收货时间等信息  -->
+    <view class='cart-groups-wraper'>
+      <view class='cart-group'>
+        <view class='group-name'>
+          <text>闪送超市</text>
+          <text>凑单专区</text>
+        </view>
+        <view class='group-proptext'>
+          ¥0起送，22:00前满¥30免运费，22:00后满¥50免运费
+        </view>
+        <view class='group-receive more spline-top'>
+          收货时间<text decode>&nbsp;&nbsp;</text>
+          <picker mode="multiSelector" value="{{multiIndex}}" range="{{multiArray}}" bindcolumnchange="changeTimes"  class="group-receive-select">
+            <view class="picker">
+              {{multiArray[0][multiIndex[0]]}}，{{multiArray[1][multiIndex[1]]}}
+            </view>
+          </picker>
+          <text class='group-receive-ext'>可预订</text>
+        </view>
+        <view class='group-comment spline-top spline-bottom f14 pl14'>
+          <text decode>收货备注&nbsp;&nbsp;</text>
+          <view class='group-comment-input-wrap'>
+            <input type="text" placeholder="可输入100字以内特殊要求内容" class="group-comment-input" />
+          </view>
+        </view>
+        <view class='table'>
+          <navigator class='spline-bottom tr' wx:for="{{carts}}" wx:key="{{item.id}}" url='/packageA/pages/product-item/product-item?id={{item.product_id}}'>
+            <view class='{{item.checked? "td group-item-checkbox active": "td group-item-checkbox"}}' data-product="{{item}}" catchtap='changeChecked'>
+              <text decode>&nbsp;</text>
+            </view>
+            <view class='td group-item-img'>
+              <image lazy-load src="{{item.product_img}}"></image>
+            </view>
+            <view class='td group-item-detail'>
+              <view>{{item.product_name}}</view>
+              <view class="product-specifics-wrap">
+                <view class="product-specifics">
+                  <text>￥{{item.product_price}}</text>
+                </view>
+                <view class='product-operates'>
+                  <text class='inner' data-product="{{item}}" catchtap='subCart'>-</text>
+                  <text class='product-operates-item'>{{item.num}}</text>
+                  <text class='inner' data-product="{{item}}" catchtap='addCart'>+</text>
+                </view>
+              </view>
+            </view>
+          </navigator>
+        </view>
+        <view class='group-footer spline-bottom pl14 f14'>
+          <text class='selectAll selectAll-false' class='{{m1.checkedAll(carts)?"selectAll selectAll-true": "selectAll selectAll-false"}}'>全选</text>共：<text class='redfont'>￥{{m1.total(carts)}}</text><text class='group-btn yellowbg'>选好了</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <!--购物车没有商品的时候显示  -->
+  <view class='main' hidden='{{carts.length>0}}'>
+    <view class='empty-notice theme-font-gray'>
+      <view class='notice-icon'></view>  
+      <view>亲，购物车空空的耶~ </view>
+      <navigator url='/pages/category/category'  class="theme-spline cart-empty-btn">去逛逛</navigator>
+    </view>
+  </view>
+</view>
